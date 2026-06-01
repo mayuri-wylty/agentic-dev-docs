@@ -1,0 +1,3 @@
+display_name: Agentic Dev Docs
+short_description: Manually create docs-first workflows with project-profile workstreams and permission matrices.
+default_prompt: Use agentic-dev-docs skill to turn my project idea into a docs-first development workflow with one main controller, project-profile-based workstreams, a required permission matrix, lifecycle-aware subagent reuse rules, a copyable new-window startup prompt, a preflight environment check document, review gates, audit gates, and manual test docs.
