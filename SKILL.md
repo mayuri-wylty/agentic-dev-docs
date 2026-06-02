@@ -5,7 +5,7 @@ description: Strict manual-trigger skill for docs-first agentic software develop
 
 # Agentic Dev Docs
 
-Version: 0.6.1
+Version: 0.6.2
 
 ## Manual Trigger Only
 
@@ -70,11 +70,22 @@ Each writable workstream must have:
 - writable scope;
 - forbidden scope;
 - required evidence;
+- recommended reasoning effort: low, medium, high, or xhigh;
 - Review owner;
 - creation condition;
 - close condition.
 
 Typical generated names should match the project, such as `sdk-cli-workstream`, `admin-ui-workstream`, `storage-executor-workstream`, `data-schema-workstream`, or `docs-revision-workstream`.
+
+## Reasoning Effort Policy
+
+Use reasoning effort as a task-risk control. When real subagents or APIs support it, `A-main-control` must set or request the selected level during assignment. When direct setting is unavailable, record the recommended level in the task assignment, workstream registry, or permission matrix.
+
+- `A-main-control` defaults to high.
+- Final decisions, cross-workstream conflicts, permission defects, and final audits use xhigh.
+- Ordinary implementation workstreams default to medium.
+- Simple lookup, formatting, organization, and low-risk docs cleanup use low or medium.
+- Contract review, security review, progress audit, and high-risk Review use high; final closeout audit uses xhigh.
 
 ## Reuse Rules
 
@@ -100,6 +111,7 @@ Every output pack must include a permission matrix. Minimum columns:
 | Writable scope | directories, file types, module, or docs |
 | Forbidden scope | shared contracts, other modules, secrets, build outputs, unrelated docs |
 | Required evidence | tests, build, screenshot, log summary, Review, audit |
+| Recommended reasoning effort | low, medium, high, or xhigh |
 | Review owner | exact role |
 | Close condition | objective proof |
 
@@ -120,6 +132,7 @@ Roles outside the matrix cannot modify product code.
 - Documentation set size: minimal, standard, or complete. Prefer references in `references/document-set.md` over repeating long lists.
 - Docs to create.
 - Workstream registry, reuse strategy, and permission matrix.
+- Recommended reasoning effort in workstream registry, permission matrix, or task assignments.
 - Contract-first rule for APIs/data.
 - Startup environment checks.
 - Code commit/push policy. Default: do not commit or push code during execution unless the project plan or a later user instruction explicitly authorizes it.
@@ -163,6 +176,7 @@ Before claiming docs are complete, verify:
 - there is exactly one A main control;
 - project shape is documented before workstreams;
 - each role has lifecycle, reuse scope, multi-instance rule, writable scope, forbidden scope, evidence, Review owner, and close condition;
+- each real subagent or logical workstream has a recommended reasoning effort;
 - permission matrix exists;
 - product implementation tasks are assigned to workstreams, not A main control;
 - human responsibility labels are not converted into A implementation tasks;
