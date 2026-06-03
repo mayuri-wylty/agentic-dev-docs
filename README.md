@@ -4,7 +4,7 @@
 
 这套控制包的目标是让后续开发过程更可控：先明确项目画像、阶段边界、权限矩阵、workstream 分工、Review 和审计规则，再由唯一的 A 主控智能体协调执行。
 
-当前版本：`0.6.1`
+当前版本：`0.6.2`
 
 GitHub 仓库：<https://github.com/mayuri-wylty/agentic-dev-docs>
 
@@ -31,6 +31,7 @@ GitHub 仓库：<https://github.com/mayuri-wylty/agentic-dev-docs>
 - 你希望明确哪些角色只读，哪些角色可以写代码。
 - 你希望新 Codex 窗口能通过启动提示词快速接管项目。
 - 你希望结合 Codex `/goal` 模式追踪较长的开发执行目标。
+- 你希望在 workstream、Review 和审计任务中记录推荐 reasoning effort。
 
 不适合的场景：
 
@@ -116,6 +117,7 @@ docs-revision-workstream
 | Writable scope | 可写目录、文件类型、模块或文档范围 |
 | Forbidden scope | 禁止触碰的范围 |
 | Required evidence | 测试、构建、截图、日志、Review 或审计证据 |
+| Recommended reasoning effort | 推荐思考程度：low、medium、high 或 xhigh |
 | Review owner | 负责 Review 的角色 |
 | Close condition | 关闭任务的客观证明 |
 
@@ -143,6 +145,21 @@ docs-revision-workstream
 执行阶段从新窗口开始。用户复制 `00_新窗口启动提示词.md` 后，新的 Codex 窗口读取开发控制包，确认自己是唯一 A 主控，然后再推进开发。
 
 如果使用 Codex `/goal` 模式，可以再复制同一文件中的 `/goal` 执行目标，让 Codex 长期追踪主控开发目标。
+
+## v0.6.2 新增内容
+
+v0.6.2 增加 reasoning effort 策略。
+
+生成 workstream registry、permission matrix 或任务分配时，需要记录推荐思考程度：
+
+- `A-main-control` 默认 `high`。
+- 最终裁决、跨 workstream 冲突、权限缺陷和最终审计使用 `xhigh`。
+- 普通 implementation workstream 默认 `medium`。
+- 简单查找、整理、格式化和低风险文档清理使用 `low` 或 `medium`。
+- contract-review、security-review、progress-audit 和高风险 Review 使用 `high`。
+- final closeout audit 使用 `xhigh`。
+
+当真实 subagent 或调用接口支持 reasoning effort 时，A 主控必须在派发任务时设置或明确要求对应档位；若平台不支持直接设置，也必须把推荐档位作为执行约束记录在文档中。
 
 ## v0.6.1 新增内容
 
@@ -307,6 +324,7 @@ skill 会只询问会影响计划的关键问题，例如：
 - Workstream 注册表。
 - 复用策略。
 - 权限矩阵。
+- 推荐 reasoning effort。
 - 契约优先规则。
 - 启动前环境核验。
 - Review 和审计门禁。
@@ -343,6 +361,7 @@ skill 会只询问会影响计划的关键问题，例如：
 - 产品代码、schema、OpenAPI、typed client、测试和部署脚本修改必须分配给授权 workstream 或逻辑 workstream。
 - Review、审计和 explorer 默认只读，除非文档明确授权窄范围写入。
 - 每个可写角色必须先进入权限矩阵，再接任务。
+- 每个真实 subagent 或逻辑 workstream 都要记录推荐 reasoning effort。
 - 同一生命周期和复用范围内只能有一个有效实例。
 - 重复 workstream 出现时，A 主控必须暂停分派、选择主实例、合并输出并关闭重复实例。
 - 最终收尾顺序是：环境核验 -> 实现证据 -> Review 通过 -> 审计通过 -> A 向用户汇报。
@@ -370,6 +389,13 @@ skill 会只询问会影响计划的关键问题，例如：
 因为不同项目的并行边界不同。这个 skill 要求先识别项目画像，再按实际模块、目录、服务、页面、命令、数据域或文档章节生成 workstream。
 
 ## 版本历史
+
+### v0.6.2
+
+- 新增 reasoning effort 策略。
+- 要求 workstream registry、permission matrix 或任务分配记录推荐思考程度。
+- 明确 A 主控、普通 implementation workstream、Review、审计和最终 closeout audit 的推荐档位。
+- 平台不支持直接设置时，也必须把推荐档位作为执行约束写入文档。
 
 ### v0.6.1
 
@@ -401,4 +427,5 @@ skill 会只询问会影响计划的关键问题，例如：
 - 版本号是否更新。
 - 模板是否还能生成完整文档包。
 - `00_新窗口启动提示词.template.md` 是否仍包含启动提示词和 `/goal` 目标。
+- reasoning effort 是否只使用 `low`、`medium`、`high`、`xhigh`。
 - 权限矩阵、workstream 复用和 A 主控边界是否仍然明确。
