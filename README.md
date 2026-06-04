@@ -4,7 +4,7 @@
 
 这套控制包的目标是让后续开发过程更可控：先明确项目画像、阶段边界、权限矩阵、workstream 分工、Review 和审计规则，再由唯一的 A 主控智能体协调执行。
 
-当前版本：`0.6.3`
+当前版本：`0.6.4`
 
 GitHub 仓库：<https://github.com/mayuri-wylty/agentic-dev-docs>
 
@@ -148,6 +148,20 @@ docs-revision-workstream
 
 如果使用 Codex `/goal` 模式，可以再复制同一文件中的 `/goal` 执行目标，让 Codex 长期追踪主控开发目标。
 
+## v0.6.4 新增内容
+
+v0.6.4 强化真实子智能体的 reasoning effort 显式传递规则。
+
+创建或派发真实子智能体时，A 主控不得默认让子智能体继承父会话思考程度。必须先读取权限矩阵中的 `Recommended reasoning effort`，并在任务说明或调用参数中显式传递或要求 `reasoning_effort`。
+
+优先级固定为：
+
+```text
+permission matrix recommended value -> parent session default -> documented exception with A-main-control confirmation
+```
+
+只有目标 workstream 没有配置推荐值时，才继承父会话默认 `reasoning_effort`，并在任务进度中记录 fallback。若因成本、速度或工具限制需要调整推荐值，必须先记录原因并获得 A 主控确认。
+
 ## v0.6.3 新增内容
 
 v0.6.3 增加显式 skill routing 策略。
@@ -193,7 +207,7 @@ v0.6.2 增加 reasoning effort 策略。
 - contract-review、security-review、progress-audit 和高风险 Review 使用 `high`。
 - final closeout audit 使用 `xhigh`。
 
-当真实 subagent 或调用接口支持 reasoning effort 时，A 主控必须在派发任务时设置或明确要求对应档位；若平台不支持直接设置，也必须把推荐档位作为执行约束记录在文档中。
+当真实 subagent 或调用接口支持 reasoning effort 时，A 主控必须在派发任务时设置或明确要求对应档位；若平台不支持直接设置，也必须把推荐档位作为执行约束记录在文档中。v0.6.4 起，真实子智能体优先按权限矩阵 `Recommended reasoning effort` 显式传递或要求 `reasoning_effort`，只有矩阵未配置推荐值时才继承父会话默认值。
 
 ## v0.6.1 新增内容
 
@@ -396,7 +410,7 @@ skill 会只询问会影响计划的关键问题，例如：
 - 产品代码、schema、OpenAPI、typed client、测试和部署脚本修改必须分配给授权 workstream 或逻辑 workstream。
 - Review、审计和 explorer 默认只读，除非文档明确授权窄范围写入。
 - 每个可写角色必须先进入权限矩阵，再接任务。
-- 每个真实 subagent 或逻辑 workstream 都要记录推荐 reasoning effort。
+- 每个真实 subagent 或逻辑 workstream 都要记录推荐 reasoning effort；真实子智能体派发时必须优先按权限矩阵显式传递或要求 `reasoning_effort`。
 - 用户指定 skill 时，A 主控必须合并全局 skill 和任务专用 skill，并在任务派发中写出触发语。
 - 用户未指定 skill 时，不生成默认 skill routing。
 - 同一生命周期和复用范围内只能有一个有效实例。
@@ -431,6 +445,12 @@ skill 会只询问会影响计划的关键问题，例如：
 
 ## 版本历史
 
+### v0.6.4
+
+强化真实子智能体 reasoning effort 显式传递规则。
+
+创建或派发真实子智能体时，A-main-control 必须优先读取权限矩阵中的 `Recommended reasoning effort`，并在任务说明或调用参数中显式传递或要求 `reasoning_effort`。只有目标 workstream 未配置推荐值时，才继承父会话默认 `reasoning_effort` 并记录 fallback。因成本、速度或工具限制调整推荐值时，必须先记录原因并获得 A-main-control 确认。
+
 ### v0.6.3
 
 增加显式 skill routing 策略。
@@ -445,7 +465,7 @@ skill 会只询问会影响计划的关键问题，例如：
 
 新版本要求生成 workstream registry、permission matrix 或任务分配时记录推荐思考程度：A-main-control 默认 high；最终裁决、跨 workstream 冲突、权限缺陷和最终审计使用 xhigh；普通 implementation workstream 默认 medium；简单查找、整理、格式化和低风险文档清理使用 low 或 medium；contract-review、security-review、progress-audit 和高风险 Review 使用 high，最终 closeout audit 使用 xhigh。
 
-当真实 subagent 或调用接口支持 reasoning effort 时，A-main-control 必须在派发任务时设置或明确要求该档位；若平台不支持直接设置，也必须把推荐档位作为执行约束记录在文档中。
+当真实 subagent 或调用接口支持 reasoning effort 时，A-main-control 必须在派发任务时设置或明确要求该档位；若平台不支持直接设置，也必须把推荐档位作为执行约束记录在文档中。v0.6.4 起，真实子智能体优先按权限矩阵 `Recommended reasoning effort` 显式传递或要求 `reasoning_effort`，只有矩阵未配置推荐值时才继承父会话默认值。
 
 ### v0.6.1
 

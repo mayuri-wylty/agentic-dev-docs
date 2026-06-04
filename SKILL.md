@@ -5,7 +5,7 @@ description: Strict manual-trigger skill for docs-first agentic software develop
 
 # Agentic Dev Docs
 
-Version: 0.6.3
+Version: 0.6.4
 
 ## Manual Trigger Only
 
@@ -81,6 +81,11 @@ Typical generated names should match the project, such as `sdk-cli-workstream`, 
 
 Use reasoning effort as a task-risk control. When real subagents or APIs support it, `A-main-control` must set or request the selected level during assignment. When direct setting is unavailable, record the recommended level in the task assignment, workstream registry, or permission matrix.
 
+- Real subagents must not silently inherit the parent session reasoning level by default.
+- Each time `A-main-control` creates or assigns a real subagent, it must explicitly pass or request `reasoning_effort` from the permission matrix column `Recommended reasoning effort`.
+- Precedence is: permission matrix recommended value -> parent session default -> documented exception with `A-main-control` confirmation.
+- If a workstream has no recommended value, inherit the parent session default `reasoning_effort` and record that fallback in task progress.
+- If cost, speed, or tool limits require a different level, record the reason first and get `A-main-control` confirmation before assigning the task.
 - `A-main-control` defaults to high.
 - Final decisions, cross-workstream conflicts, permission defects, and final audits use xhigh.
 - Ordinary implementation workstreams default to medium.
@@ -153,7 +158,7 @@ Roles outside the matrix cannot modify product code.
 - Documentation set size: minimal, standard, or complete. Prefer references in `references/document-set.md` over repeating long lists.
 - Docs to create.
 - Workstream registry, reuse strategy, and permission matrix.
-- Recommended reasoning effort in workstream registry, permission matrix, or task assignments.
+- Recommended reasoning effort in workstream registry, permission matrix, and task assignments. For real subagents, task assignment must explicitly pass or request `reasoning_effort` from the permission matrix unless the workstream has no configured value.
 - Explicit skill routing only when the user specified skills: global skill baseline, task/workstream skill routing, trigger wording, and fallback.
 - Contract-first rule for APIs/data.
 - Startup environment checks.
@@ -199,6 +204,8 @@ Before claiming docs are complete, verify:
 - project shape is documented before workstreams;
 - each role has lifecycle, reuse scope, multi-instance rule, writable scope, forbidden scope, evidence, Review owner, and close condition;
 - each real subagent or logical workstream has a recommended reasoning effort;
+- each real subagent assignment explicitly passes or requests `reasoning_effort` from the permission matrix, or records parent-default fallback when no value is configured;
+- any reasoning effort override records cost, speed, or tool-limit reason and `A-main-control` confirmation;
 - if the user specified skills, global and task/workstream skill routing are recorded in the plan, startup prompt, main-control entry, collaboration rules, task progress pattern, and docs acceptance checklist;
 - if the user did not specify skills, generated docs do not invent skill requirements;
 - permission matrix exists;
