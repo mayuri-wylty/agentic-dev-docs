@@ -4,7 +4,7 @@
 
 这套控制包的目标是让后续开发过程更可控：先明确项目画像、阶段边界、权限矩阵、workstream 分工、Review 和审计规则，再由唯一的 A 主控智能体协调执行。
 
-当前版本：`0.6.2`
+当前版本：`0.6.3`
 
 GitHub 仓库：<https://github.com/mayuri-wylty/agentic-dev-docs>
 
@@ -32,6 +32,7 @@ GitHub 仓库：<https://github.com/mayuri-wylty/agentic-dev-docs>
 - 你希望新 Codex 窗口能通过启动提示词快速接管项目。
 - 你希望结合 Codex `/goal` 模式追踪较长的开发执行目标。
 - 你希望在 workstream、Review 和审计任务中记录推荐 reasoning effort。
+- 你希望在作 plan 前显式指定全局 skill 或某类任务专用 skill。
 
 不适合的场景：
 
@@ -118,6 +119,7 @@ docs-revision-workstream
 | Forbidden scope | 禁止触碰的范围 |
 | Required evidence | 测试、构建、截图、日志、Review 或审计证据 |
 | Recommended reasoning effort | 推荐思考程度：low、medium、high 或 xhigh |
+| Skill routing | 用户显式指定的全局继承 skill 或任务专用 skill；未指定时留空 |
 | Review owner | 负责 Review 的角色 |
 | Close condition | 关闭任务的客观证明 |
 
@@ -145,6 +147,38 @@ docs-revision-workstream
 执行阶段从新窗口开始。用户复制 `00_新窗口启动提示词.md` 后，新的 Codex 窗口读取开发控制包，确认自己是唯一 A 主控，然后再推进开发。
 
 如果使用 Codex `/goal` 模式，可以再复制同一文件中的 `/goal` 执行目标，让 Codex 长期追踪主控开发目标。
+
+## v0.6.3 新增内容
+
+v0.6.3 增加显式 skill routing 策略。
+
+用户可以在“现在开始作 plan”前用自然语言指定两层 skill：
+
+- Global skill baseline：所有智能体继承，包括 `A-main-control`、真实子智能体和逻辑 workstream。
+- Task / workstream skill routing：只作用于某类任务、某个 workstream、Review、审计或 one-shot assignment。
+
+示例：
+
+```text
+需求文档: D:/AL_Code/A1-CKY/docs/cky/项目工作日志-wly/浏览器反馈Bug修复需求-2026-06-04.md
+文档输出目录: D:\AL_Code\A1-CKY\docs\cky\项目工作日志-wly\多智能体文档
+
+所有智能体（包括主子）使用skill：caveman + karpathy-guidelines
+执行前端测试任务的子智能体使用skill：playwright
+
+现在开始作plan
+```
+
+生成 plan 和文档时，只有用户明确指定 skill 才记录 skill routing。如果用户没有指定 skill，保持默认行为，不推断、不发明、不强制加入任何 skill。
+
+当存在 skill routing 时，plan、启动提示词、总控入口、协作规范、任务进度记录和文档验收清单需要记录：
+
+- 全局 skill。
+- 任务或 workstream 专用 skill。
+- 派发任务时的触发语，例如 `use playwright skill`。
+- required skill 不可用时的 fallback。
+
+A 主控派发任务前必须合并全局 skill 和任务专用 skill，并在任务说明中显式写出 required skill 的触发语。
 
 ## v0.6.2 新增内容
 
@@ -325,6 +359,7 @@ skill 会只询问会影响计划的关键问题，例如：
 - 复用策略。
 - 权限矩阵。
 - 推荐 reasoning effort。
+- 显式 skill routing。仅当用户指定 skill 时生成；未指定时保持空白默认。
 - 契约优先规则。
 - 启动前环境核验。
 - Review 和审计门禁。
@@ -362,6 +397,8 @@ skill 会只询问会影响计划的关键问题，例如：
 - Review、审计和 explorer 默认只读，除非文档明确授权窄范围写入。
 - 每个可写角色必须先进入权限矩阵，再接任务。
 - 每个真实 subagent 或逻辑 workstream 都要记录推荐 reasoning effort。
+- 用户指定 skill 时，A 主控必须合并全局 skill 和任务专用 skill，并在任务派发中写出触发语。
+- 用户未指定 skill 时，不生成默认 skill routing。
 - 同一生命周期和复用范围内只能有一个有效实例。
 - 重复 workstream 出现时，A 主控必须暂停分派、选择主实例、合并输出并关闭重复实例。
 - 最终收尾顺序是：环境核验 -> 实现证据 -> Review 通过 -> 审计通过 -> A 向用户汇报。
@@ -384,11 +421,23 @@ skill 会只询问会影响计划的关键问题，例如：
 
 不会。v0.6.1 默认不提交、不推送、不创建 PR。是否允许这些动作，必须在 plan 中选择，或由用户后续明确授权。
 
+### 没指定 skill 会怎样？
+
+保持默认行为。v0.6.3 不会推断、不发明、不强制加入任何 skill。只有用户在输入中明确指定 skill 时，才会生成 global skill baseline 或 task/workstream skill routing。
+
 ### 为什么不用固定的前端/后端/测试角色？
 
 因为不同项目的并行边界不同。这个 skill 要求先识别项目画像，再按实际模块、目录、服务、页面、命令、数据域或文档章节生成 workstream。
 
 ## 版本历史
+
+### v0.6.3
+
+增加显式 skill routing 策略。
+
+新版本支持用户在开始作 plan 前用自然语言指定两层 skill：一类是所有智能体继承的 global skill baseline，另一类是某类任务、某个 workstream、Review、审计或 one-shot assignment 专用的 task/workstream skill routing。
+
+如果用户没有指定 skill，生成的 plan 和文档保持默认行为，不推断、不发明、不强制加入任何 skill。若用户指定了 skill，plan、启动提示词、总控入口、协作规范、任务进度记录和文档验收清单必须记录全局 skill、任务专用 skill、派发触发语和 required skill 不可用时的 fallback。
 
 ### v0.6.2
 
@@ -467,4 +516,5 @@ skill 会只询问会影响计划的关键问题，例如：
 - 模板是否还能生成完整文档包。
 - `00_新窗口启动提示词.template.md` 是否仍包含启动提示词和 `/goal` 目标。
 - reasoning effort 是否只使用 `low`、`medium`、`high`、`xhigh`。
+- 未指定 skill 时是否保持默认空白；指定 skill 时是否记录两层 skill routing、触发语和 fallback。
 - 权限矩阵、workstream 复用和 A 主控边界是否仍然明确。

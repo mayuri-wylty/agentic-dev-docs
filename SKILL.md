@@ -5,7 +5,7 @@ description: Strict manual-trigger skill for docs-first agentic software develop
 
 # Agentic Dev Docs
 
-Version: 0.6.2
+Version: 0.6.3
 
 ## Manual Trigger Only
 
@@ -87,6 +87,26 @@ Use reasoning effort as a task-risk control. When real subagents or APIs support
 - Simple lookup, formatting, organization, and low-risk docs cleanup use low or medium.
 - Contract review, security review, progress audit, and high-risk Review use high; final closeout audit uses xhigh.
 
+## Explicit Skill Routing
+
+Use explicit skill routing only when the user specifies skills. If the user does not specify skills, do not invent, infer, or add default skill requirements.
+
+Before plan generation, parse user-provided skill routing lines into two layers:
+
+- Global skill baseline: applies to `A-main-control` and every real or logical workstream. Recognize inputs such as `all agents use skill`, `所有智能体使用skill`, `所有智能体（包括主子）使用skill`, and `A主控和所有子智能体使用skill`.
+- Task or workstream skill routing: applies only to a task type, named workstream, Review, audit, or one-shot assignment. Recognize inputs such as `执行<任务类型>任务的子智能体使用skill`, `<workstream>使用skill`, and `<任务>交给<workstream>，使用skill`.
+
+Skill names may be separated by `+`, `,`, `，`, `/`, or whitespace. Preserve the user-specified names as written, normalize only obvious spacing, and do not replace them with unrelated skills.
+
+When skill routing exists, the generated plan and docs must record:
+- global skills, if any;
+- task/workstream-specific required skills, if any;
+- optional or forbidden skills, only if the user explicitly states them;
+- exact trigger wording for task assignment, such as `use playwright skill`;
+- fallback behavior when a required skill is unavailable.
+
+`A-main-control` must merge global skills with task/workstream-specific skills before assigning work, record the resulting required skills in task progress, and include the exact trigger wording in the assignment. If a required skill is unavailable, pause or follow the documented fallback instead of pretending the skill was used.
+
 ## Reuse Rules
 
 Only one effective instance may exist for the same lifecycle and reuse scope.
@@ -112,6 +132,7 @@ Every output pack must include a permission matrix. Minimum columns:
 | Forbidden scope | shared contracts, other modules, secrets, build outputs, unrelated docs |
 | Required evidence | tests, build, screenshot, log summary, Review, audit |
 | Recommended reasoning effort | low, medium, high, or xhigh |
+| Skill routing | global inherited skills and task/workstream-specific required skills, or blank when the user specified none |
 | Review owner | exact role |
 | Close condition | objective proof |
 
@@ -133,6 +154,7 @@ Roles outside the matrix cannot modify product code.
 - Docs to create.
 - Workstream registry, reuse strategy, and permission matrix.
 - Recommended reasoning effort in workstream registry, permission matrix, or task assignments.
+- Explicit skill routing only when the user specified skills: global skill baseline, task/workstream skill routing, trigger wording, and fallback.
 - Contract-first rule for APIs/data.
 - Startup environment checks.
 - Code commit/push policy. Default: do not commit or push code during execution unless the project plan or a later user instruction explicitly authorizes it.
@@ -177,6 +199,8 @@ Before claiming docs are complete, verify:
 - project shape is documented before workstreams;
 - each role has lifecycle, reuse scope, multi-instance rule, writable scope, forbidden scope, evidence, Review owner, and close condition;
 - each real subagent or logical workstream has a recommended reasoning effort;
+- if the user specified skills, global and task/workstream skill routing are recorded in the plan, startup prompt, main-control entry, collaboration rules, task progress pattern, and docs acceptance checklist;
+- if the user did not specify skills, generated docs do not invent skill requirements;
 - permission matrix exists;
 - product implementation tasks are assigned to workstreams, not A main control;
 - human responsibility labels are not converted into A implementation tasks;
